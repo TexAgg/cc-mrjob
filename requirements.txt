@@ -2,3 +2,4 @@ boto
 mrjob
 warc
 https://github.com/commoncrawl/gzipstream/archive/master.zip
+beautifulsoup4

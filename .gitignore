@@ -1,0 +1,4 @@
+crawl-data/
+out/
+*.pyc
+.vscode/
