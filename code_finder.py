@@ -1,8 +1,4 @@
-import re
-from collections import Counter
-from mrcc import CCJob
 from bs4 import BeautifulSoup
-import itertools
 import warc
 import csv
 
@@ -14,6 +10,7 @@ def scrape():
 	writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 	writer.writeheader()
 
+	# http://bit.ly/2pPIKOT
 	f = warc.open("crawl-data/CC-MAIN-2014-35/segments/1408500800168.29/warc/CC-MAIN-20140820021320-00000-ip-10-180-136-8.ec2.internal.warc.gz")
 	for record in f:
 		process(record, writer)
@@ -40,25 +37,5 @@ def get_code(data, ctr=None):
 		ctr.append(code.get_text())
 	return ctr
 
-class CodeGetter(CCJob):
-	def process_record(self, record):
-		# WARC records have three different types:
-		#  ["application/warc-fields", "application/http; msgtype=request", "application/http; msgtype=response"]
-		# We're only interested in the HTTP responses
-		if record['Content-Type'] == 'application/http; msgtype=response':
-			payload = record.payload.read()
-			# The HTTP response is defined by a specification: first part is headers (metadata)
-			# and then following two CRLFs (newlines) has the data for the response
-			headers, body = payload.split('\r\n\r\n', 1)
-			if 'Content-Type: text/html' in headers:
-				codes = get_code(body)
-				urls = [record['WARC-Target-URI']]
-				data = zip(itertools.cycle(urls), codes)
-				for key, value in data:
-					print record['WARC-Target-URI']
-					yield key, value
-				self.increment_counter('commoncrawl', 'processed_pages', 1)
-
 if __name__ == "__main__":
-	#CodeGetter.run()
 	scrape()
