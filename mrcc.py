@@ -48,4 +48,4 @@ class CCJob(MRJob):
         yield key_val
 
   def reducer(self, key, value):
-    yield key, sum(value)
+    yield str(key), str(value)
